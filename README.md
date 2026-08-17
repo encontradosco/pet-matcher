@@ -29,28 +29,44 @@ tiene la build que pide `requirements.txt`.)
 Las pruebas usan una función `embed_fn` de mentira inyectada en `create_app`
 — no descargan el modelo real. Verificación manual contra el modelo real:
 
+    export PET_MATCH_SHARED_SECRET=una-prueba-cualquiera
     python app.py &
-    curl -s -F "image=@/ruta/a/una/foto/de/perro-o-gato.jpg" http://localhost:5001/embed \
+    curl -s -H "x-pet-matcher-secret: $PET_MATCH_SHARED_SECRET" \
+      -F "image=@/ruta/a/una/foto/de/perro-o-gato.jpg" http://localhost:5001/embed \
       | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d['embedding']), d['model'])"
 
 Debe imprimir `384 AvitoTech/DINO-v2-small-for-animal-identification`.
 
 ## Contrato
 
-`POST /embed`, multipart con el campo `image` →
-`{ "embedding": [...], "model": "..." }`. Sin el campo `image`: `422`
+`POST /embed`, multipart con el campo `image`, con el header
+`x-pet-matcher-secret` → `{ "embedding": [...], "model": "..." }`. Sin el
+header o con el secreto equivocado: `401`. Si el servidor no tiene
+`PET_MATCH_SHARED_SECRET` configurado: `503` (falla cerrado — nunca acepta
+fotos sin secreto). Con el secreto correcto pero sin el campo `image`: `422`
 (validación automática de FastAPI). Con una imagen ilegible: `400`.
+
+`GET /health` no pide secreto — es lo que un orquestador (Fly, el que sea)
+usa para preguntar "¿estás vivo?", y no expone nada sensible.
+
+## Autenticación
+
+Mismo patrón que ya usa encontrados.co para su webhook de WhatsApp
+(`WHATSAPP_RELAY_SECRET`): un secreto compartido en una variable de entorno,
+mandado como header en cada petición a `/embed`. Generar uno:
+
+    openssl rand -hex 32
+
+Poner ese valor en `PET_MATCH_SHARED_SECRET` de este servicio, y el mismo
+valor en `PET_MATCH_SHARED_SECRET` del lado de encontrados.co.
 
 ## Desplegar con Docker
 
     docker build -t pet-matcher .
-    docker run -p 5001:5001 pet-matcher
+    docker run -p 5001:5001 -e PET_MATCH_SHARED_SECRET=un-secreto-de-verdad pet-matcher
 
 Un solo worker de `uvicorn` a propósito — ver el comentario en `Dockerfile`.
 
 ## Pendiente antes de exponerlo a internet de verdad
 
-- **Sin autenticación todavía.** Cualquiera que tenga la URL puede mandarle
-  fotos gratis. Falta un secreto compartido antes de un despliegue real
-  (mismo patrón que ya usa encontrados.co para su webhook de WhatsApp).
 - Sin límite de tamaño de imagen aceptada.
