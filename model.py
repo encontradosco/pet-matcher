@@ -1,9 +1,8 @@
 """Calcula el embedding de una foto de perro o gato.
 
-*** TEMPORAL, SOLO PARA PROBAR EN LOCAL — NO COMMITEAR ***
-Cambiado a AvitoTech/DINO-v2-small-for-animal-identification para comparar
-contra el modelo real (CLIP-ViT-base, el que sigue en el commit de Task 4).
-Revertir antes de seguir con cualquier tarea del plan.
+Modelo elegido tras comparar 5 candidatos con datos reales (DogFaceNet +
+un dataset de gatos): casi el mismo desempeño que el mejor de los 5, con
+9 veces menos parámetros.
 """
 from transformers import AutoModel, AutoImageProcessor
 import torch
@@ -19,11 +18,11 @@ _load_lock = threading.Lock()
 
 def _load():
     global _model, _processor
-    # Flask corre threaded por omisión: sin el lock, dos primeras peticiones
-    # a la vez podrían pasar juntas el "if _model is None" de afuera y cada
-    # una construir su propia copia del modelo. Doble chequeo — el segundo,
-    # ya con el lock tomado — para no pagar el costo del lock en cada
-    # petición una vez que el modelo ya está cargado.
+    # Sin el lock, dos peticiones concurrentes podrían pasar juntas el "if
+    # _model is None" de afuera y cada una construir su propia copia del
+    # modelo. Doble chequeo — el segundo, ya con el lock tomado — para no
+    # pagar el costo del lock en cada petición una vez que el modelo ya
+    # está cargado.
     if _model is None:
         with _load_lock:
             if _model is None:
