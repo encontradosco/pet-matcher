@@ -2,7 +2,7 @@
 
 Modelo elegido tras comparar 5 candidatos con datos reales (DogFaceNet +
 un dataset de gatos): casi el mismo desempeño que el mejor de los 5, con
-9 veces menos parámetros.
+casi 7 veces menos parámetros (22.1M vs. 151.3M).
 """
 from transformers import AutoModel, AutoImageProcessor
 import torch

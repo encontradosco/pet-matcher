@@ -9,7 +9,7 @@ es quien lo consume.
 Modelo: [`AvitoTech/DINO-v2-small-for-animal-identification`](https://huggingface.co/AvitoTech/DINO-v2-small-for-animal-identification)
 — 22M parámetros, afinado sobre 695.091 individuos (perros y gatos), elegido
 tras comparar 5 candidatos con datos reales: casi el mismo desempeño que el
-mejor de los 5, con 9 veces menos parámetros.
+mejor de los 5, con casi 7 veces menos parámetros (22.1M vs. 151.3M).
 
 ## Instalar y correr local
 
