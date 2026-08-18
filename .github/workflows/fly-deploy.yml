@@ -1,0 +1,21 @@
+name: Deploy a Fly.io
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: flyctl deploy
+    runs-on: ubuntu-latest
+    # Un deploy a la vez — si dos push llegan juntos, el segundo espera en
+    # vez de pisar al primero a mitad de camino.
+    concurrency:
+      group: fly-deploy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
