@@ -65,6 +65,21 @@ valor en `PET_MATCH_SHARED_SECRET` del lado de encontrados.co.
     docker build -t pet-matcher .
     docker run -p 5001:5001 -e PET_MATCH_SHARED_SECRET=un-secreto-de-verdad pet-matcher
 
+## Desplegado en Fly.io
+
+`pet-matcher.fly.dev`, org `encontrados` de Fly, cuenta de pago —
+`fly.toml` deja `min_machines_running = 1`: siempre prendida, sin cold
+starts. Cada push a `main` la despliega solo, vía
+`.github/workflows/fly-deploy.yml` (mismo principio que "mergear es
+desplegar" en encontrados.co: no queda nada pendiente entre el merge y que
+el cambio esté vivo). El token vive en el secret `FLY_API_TOKEN` del repo,
+limitado a esta app, con vencimiento — hay que regenerarlo cuando expire
+(`flyctl tokens create deploy -a pet-matcher`).
+
+Para desplegar a mano (sin esperar el push):
+
+    flyctl deploy
+
 Un solo worker de `uvicorn` a propósito — ver el comentario en `Dockerfile`.
 
 ## Pendiente antes de exponerlo a internet de verdad
