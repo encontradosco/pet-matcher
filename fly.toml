@@ -17,6 +17,15 @@ primary_region = 'gru'
     method = 'GET'
     path = '/health'
 
+  # /embed corre la inferencia en el event loop, no en un threadpool — así
+  # que esta única máquina procesa una foto a la vez de todos modos. El
+  # límite existe para que un pico (o abuso) de pedidos se rechace en el
+  # proxy en vez de acumularse en la memoria de una máquina de 1GB.
+  [http_service.concurrency]
+    type = 'requests'
+    soft_limit = 3
+    hard_limit = 6
+
 [[vm]]
   size = 'shared-cpu-1x'
   memory = '1gb'
