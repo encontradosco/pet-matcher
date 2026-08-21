@@ -1,0 +1,29 @@
+# CODEOWNERS — quién tiene que aprobar qué.
+#
+# `main` es producción: cada push la despliega a Fly.io vía
+# fly-deploy.yml, así que mergear ES desplegar (ver README, sección
+# "Desplegado en Fly.io"). De ahí sale el corte de abajo.
+#
+# Cómo lee GitHub este archivo, porque no es intuitivo:
+#   1. Gana la ÚLTIMA coincidencia, no la más específica — por eso el
+#      catch-all `*` va PRIMERO.
+#   2. No existe negación (`!ruta`): una ruta se restringe entera o no
+#      se restringe.
+#   3. Una entrada solo cuenta si esa cuenta tiene acceso de escritura
+#      al repo — si no, se ignora en silencio.
+
+# === Por defecto: rutinario ================================================
+# app.py (fuera del chequeo de secreto, ver abajo), model.py, tests,
+# requirements.txt, README. La aprobación de cualquiera de los tres alcanza.
+*                 @torrenegra @ni500 @yesid-lopez
+
+# === Lo que corre en producción y lo que lo protege =========================
+# Quien pueda editar esto puede apagar el único test obligatorio, cambiar a
+# qué imagen/organización de Fly se despliega, o tocar el chequeo del
+# secreto compartido que es todo el perímetro de seguridad del servicio
+# (no hay nada más entre /embed y la internet abierta). Ningún cambio acá
+# se revierte mirando el diff después de que ya se desplegó solo.
+/.github/         @torrenegra @ni500 @yesid-lopez
+/fly.toml         @torrenegra @ni500 @yesid-lopez
+/Dockerfile       @torrenegra @ni500 @yesid-lopez
+/app.py           @torrenegra @ni500 @yesid-lopez
