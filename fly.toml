@@ -23,8 +23,8 @@ primary_region = 'gru'
   # proxy en vez de acumularse en la memoria de una máquina de 1GB.
   [http_service.concurrency]
     type = 'requests'
-    soft_limit = 3
-    hard_limit = 6
+    soft_limit = 5
+    hard_limit = 10
 
 [[vm]]
   size = 'shared-cpu-1x'
